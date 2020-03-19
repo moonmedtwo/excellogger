@@ -66,19 +66,34 @@ def EditFile(file, cell, value):
 
 IWCODELIST = ['12378','123162','21321','26452','953251']
 USERLIST = ['avu', 'bce', 'def', 'tof', 'iphone']
-tf ='test.xlsx'
+tf ='test_entry_duplicated_1.xlsx'
 
-import pdb 
+def RefactorWorkbook(workbook, datadict, file):
+    tobedeletedSheet = workbook.active
+    preservedName = 'Sheet'
+    if(tobedeletedSheet):
+        preservedName = tobedeletedSheet.title
+        workbook.remove(tobedeletedSheet)
+
+    sheet = workbook.create_sheet(preservedName)
+
+    sheet.append([TEXT_1ST_ROW_1ST_COL, TEXT_1ST_ROW_2ND_COL])
+    for iwcode in datadict:
+        sheet.append([iwcode, datadict[iwcode]])
+    
+    workbook.save(file)
+
 def LogEntry():
     code = IWCODELIST[int(math.floor(random.uniform(0,len(IWCODELIST))))]
     user = USERLIST[int(math.floor(random.uniform(0,len(USERLIST))))]
     print(f'{code}, {user}')
     datadict, isDuplicated, workbook = ParseFileAndCheckDuplicated(tf)
-    sheet = workbook.active
 
-    #TODO: reconstruct here to remove all duplicated
+    if(isDuplicated):
+        RefactorWorkbook(workbook,datadict, tf)
+
     datalist = list(datadict.items())
-
+    sheet = workbook.active
     for i in range(0, len(datalist)):
         if code == datalist[i][IWCODE]:
            tmp = datalist[i][LOGSTRING]
@@ -89,13 +104,12 @@ def LogEntry():
            workbook.save(tf)
            return
 
-    if(isDuplicated == False):
-        sheet.append([code, user])
-        workbook.save(tf)
-        return
+    sheet.append([code, user])
+    workbook.save(tf)
+    return
 
 
 for i in range(0,10):
     LogEntry()
 
-ReadFile(tf)
+print(ReadFile(tf))
