@@ -64,10 +64,6 @@ def EditFile(file, cell, value):
     sheet[cell] = value
     workbook.save(filename=file)
 
-IWCODELIST = ['12378','123162','21321','26452','953251']
-USERLIST = ['avu', 'bce', 'def', 'tof', 'iphone']
-tf ='test_entry_duplicated_1.xlsx'
-
 def RefactorWorkbook(workbook, datadict, file):
     tobedeletedSheet = workbook.active
     preservedName = 'Sheet'
@@ -82,34 +78,3 @@ def RefactorWorkbook(workbook, datadict, file):
         sheet.append([iwcode, datadict[iwcode]])
     
     workbook.save(file)
-
-def LogEntry():
-    code = IWCODELIST[int(math.floor(random.uniform(0,len(IWCODELIST))))]
-    user = USERLIST[int(math.floor(random.uniform(0,len(USERLIST))))]
-    print(f'{code}, {user}')
-    datadict, isDuplicated, workbook = ParseFileAndCheckDuplicated(tf)
-
-    if(isDuplicated):
-        RefactorWorkbook(workbook,datadict, tf)
-
-    datalist = list(datadict.items())
-    sheet = workbook.active
-    for i in range(0, len(datalist)):
-        if code == datalist[i][IWCODE]:
-           tmp = datalist[i][LOGSTRING]
-           tmp = f'{tmp}, {user}'
-           cell = f'B{i+2}'
-           print(f'Editting cell[{cell}] with {tmp}')
-           sheet[cell] = tmp
-           workbook.save(tf)
-           return
-
-    sheet.append([code, user])
-    workbook.save(tf)
-    return
-
-
-for i in range(0,10):
-    LogEntry()
-
-print(ReadFile(tf))
