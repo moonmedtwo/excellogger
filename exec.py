@@ -37,6 +37,17 @@ def LogEntry():
     return
 
 if __name__ == '__main__':
+    filepath = 'filetosave.txt'
+    try:    
+        file = open(filepath, 'r') 
+    except Exception as e:
+        print('cannot open file')
+        exit()
+
+    Lines = file.readlines() 
+    tf = Lines[0]
+    print(f'Save to file {tf}')
+
     for i in range(0,20):
         LogEntry()
     print(ReadFile(tf))
