@@ -1,6 +1,6 @@
 
 import pandas as pd
-from db_classes import IWCODE, LOGSTRING
+from db_classes import IWCODE_IDX, DATA_IDX
 from excellogger import ParseFileAndCheckDuplicated, RefactorWorkbook, ReadFile
 import random, math
 from datetime import datetime
@@ -26,8 +26,8 @@ def LogEntry():
     time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     logstr = f'{user}---{time}'
     for i in range(0, len(datalist)):
-        if code == datalist[i][IWCODE]:
-           tmp = datalist[i][LOGSTRING]
+        if code == datalist[i][IWCODE_IDX]:
+           tmp = datalist[i][DATA_IDX]
            tmp = f'{tmp}, {logstr}'
            cell = f'B{i+2}'
            print(f'Editting cell[{cell}] with {tmp}')

@@ -1,5 +1,5 @@
 import pandas as pd
-from db_classes import IWCODE, LOGSTRING, TEXT_1ST_ROW_1ST_COL, TEXT_1ST_ROW_2ND_COL
+from db_classes import IWCODE_IDX, DATA_IDX, TEXT_1ST_ROW_1ST_COL, TEXT_1ST_ROW_2ND_COL
 from openpyxl import Workbook
 from openpyxl import load_workbook
 import random, math
@@ -28,11 +28,11 @@ def ParseFileAndCheckDuplicated(file):
         if(row[0] == TEXT_1ST_ROW_1ST_COL):
             continue
 
-        if(row[IWCODE] in datadict):
+        if(row[IWCODE_IDX] in datadict):
             isKeyDuplicated = True
             #TODO: log error
 
-        datadict[row[IWCODE]] = row[LOGSTRING]
+        datadict[row[IWCODE_IDX]] = row[DATA_IDX]
 
     return datadict, isKeyDuplicated, workbook
 
