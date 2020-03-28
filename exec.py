@@ -4,6 +4,9 @@ from db_classes import IWCODE, LOGSTRING
 from excellogger import ParseFileAndCheckDuplicated, RefactorWorkbook, ReadFile
 import random, math
 from datetime import datetime
+from lock import TryLockAccess, UnlockAccess, LOCKFILE
+import sys
+import os
 
 IWCODELIST = ['12378','123162','21321','26452','953251', '216373', '353215' , '46823' , '1326458' , '9472201']
 USERLIST = ['avu', 'bce', 'def', 'tof', 'iphone']
@@ -46,8 +49,18 @@ if __name__ == '__main__':
 
     Lines = file.readlines() 
     tf = Lines[0]
-    print(f'Save to file {tf}')
 
-    for i in range(0,20):
-        LogEntry()
-    print(ReadFile(tf))
+    outFPath = os.path.dirname(tf)
+    os.chdir(outFPath)
+    # lock here
+    lock = TryLockAccess()
+    if(lock != None):
+        try:
+            for i in range(0,20):
+                LogEntry()
+            print(ReadFile(tf))
+        finally:
+            # unlock here
+            UnlockAccess(lock)
+    else:
+        print(f'Cannot create lock file. Please try to manually remove {LOCKFILE}')
