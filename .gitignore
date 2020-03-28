@@ -1,2 +1,8 @@
 build/
 dist/
+
+*.xlsx
+
+output/
+
+*.zip
