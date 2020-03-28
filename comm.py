@@ -38,7 +38,7 @@ def checkingPortThread():
         next_call = next_call + PORT_CHECKING_INTERVAL
         time.sleep(next_call - time.time())
 
-def comm_thread():
+def comm_thread(barrier):
     timerThread = threading.Thread(target=checkingPortThread)
     timerThread.start()
 
@@ -58,9 +58,9 @@ def comm_thread():
         timeout = TIMEOUT
     )
     ser.isOpen()
+    barrier.wait()
     while(True):
         line = doRead(ser, '\n', TIMEOUT * 3)
         if(len(line)):
             print(line)
-
-comm_thread()
+            #TODO: handle when hardware is disconnected
