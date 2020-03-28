@@ -9,7 +9,7 @@ import os
 IWCODELIST = ['1','2','3','4','5', '6', '7' , '8' , '9' , '0']
 USERLIST = ['avu', 'bce', 'def', 'tof', 'iphone']
 tf ='demo.xlsx'
-
+        
 def LogEntry():
     code = IWCODELIST[int(math.floor(random.uniform(0,len(IWCODELIST))))]
     user = USERLIST[int(math.floor(random.uniform(0,len(USERLIST))))]
@@ -20,9 +20,8 @@ def LogEntry():
         raise('There is duplicate entry of IWCODE. Please remove the file or the entry')
 
     datalist = list(datadict.items())
-    sheet = workbook.active
 
-    Log(tf, workbook, sheet, code, user, datalist)
+    Log(tf, workbook, code, user, datalist)
 
     return
 

@@ -5,10 +5,23 @@ from openpyxl import load_workbook
 import random, math
 from datetime import datetime
 
-FILE = 'Book1.xlsx'
+
+SHEET_NAME = "Log Datasheet"
+def GetLogDataSheet(file, wb):
+    try:
+        ws = wb[SHEET_NAME]
+    except KeyError:
+        print(f'No existed sheet. Creating new one as {SHEET_NAME}')
+        ws = wb.create_sheet(SHEET_NAME)
+        ws.append([TEXT_1ST_ROW_1ST_COL, TEXT_1ST_ROW_2ND_COL])
+    finally:
+        ws = wb[SHEET_NAME]
+    
+    wb.save(file)
+    return ws
 
 def ReadFile(file):
-    df = pd.read_excel(file)
+    df = pd.read_excel(file, sheet_name = SHEET_NAME)
     return df
 
 def ParseFileAndCheckDuplicated(file):
@@ -23,7 +36,7 @@ def ParseFileAndCheckDuplicated(file):
             return
 
     datadict = {}
-    sheet = workbook.active
+    sheet = GetLogDataSheet(file,workbook)
     isKeyDuplicated = False
     for row in sheet.values:
         if(row[0] == TEXT_1ST_ROW_1ST_COL):
@@ -48,10 +61,9 @@ def FindBlankCellByRow(ws, row):
 
     return row, col
 
-def Log(file, wb, ws, code, user, datalist):
-    
+def Log(file, wb, code, user, datalist):
     time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+    ws = GetLogDataSheet(file, wb)
     FoundExisting = False
     for i in range(0, len(datalist)):
         if code == datalist[i][IWCODE_IDX]:
@@ -76,28 +88,6 @@ def Log(file, wb, ws, code, user, datalist):
 
 def CreateNew(file):
     workbook = Workbook()
-    sheet = workbook.active
-    sheet.append([TEXT_1ST_ROW_1ST_COL, TEXT_1ST_ROW_2ND_COL])
+    sheet = GetLogDataSheet(file,workbook)
     workbook.save(filename=file)
     return workbook
-
-def EditFile(file, cell, value):
-    workbook = load_workbook(filename=file)
-    sheet = workbook.active
-    sheet[cell] = value
-    workbook.save(filename=file)
-
-def RefactorWorkbook(workbook, datadict, file):
-    tobedeletedSheet = workbook.active
-    preservedName = 'Sheet'
-    if(tobedeletedSheet):
-        preservedName = tobedeletedSheet.title
-        workbook.remove(tobedeletedSheet)
-
-    sheet = workbook.create_sheet(preservedName)
-
-    sheet.append([TEXT_1ST_ROW_1ST_COL, TEXT_1ST_ROW_2ND_COL])
-    for iwcode in datadict:
-        sheet.append([iwcode, datadict[iwcode]])
-    
-    workbook.save(file)
