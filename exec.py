@@ -1,14 +1,12 @@
 
 import pandas as pd
-from db_classes import IWCODE_IDX, DATA_IDX
-from excellogger import ParseFileAndCheckDuplicated, RefactorWorkbook, ReadFile
+from excellogger import Log, ParseFileAndCheckDuplicated, ReadFile
 import random, math
-from datetime import datetime
 from lock import TryLockAccess, UnlockAccess, LOCKFILE
 import sys
 import os
 
-IWCODELIST = ['12378','123162','21321','26452','953251', '216373', '353215' , '46823' , '1326458' , '9472201']
+IWCODELIST = ['1','2','3','4','5', '6', '7' , '8' , '9' , '0']
 USERLIST = ['avu', 'bce', 'def', 'tof', 'iphone']
 tf ='demo.xlsx'
 
@@ -19,24 +17,13 @@ def LogEntry():
     datadict, isDuplicated, workbook = ParseFileAndCheckDuplicated(tf)
 
     if(isDuplicated): 
-        RefactorWorkbook(workbook,datadict, tf)
+        raise('There is duplicate entry of IWCODE. Please remove the file or the entry')
 
     datalist = list(datadict.items())
     sheet = workbook.active
-    time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    logstr = f'{user}---{time}'
-    for i in range(0, len(datalist)):
-        if code == datalist[i][IWCODE_IDX]:
-           tmp = datalist[i][DATA_IDX]
-           tmp = f'{tmp}, {logstr}'
-           cell = f'B{i+2}'
-           print(f'Editting cell[{cell}] with {tmp}')
-           sheet[cell] = tmp
-           workbook.save(tf)
-           return
 
-    sheet.append([code, logstr])
-    workbook.save(tf)
+    Log(tf, workbook, sheet, code, user, datalist)
+
     return
 
 if __name__ == '__main__':
