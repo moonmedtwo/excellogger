@@ -53,10 +53,11 @@ def logging_thread(barrier):
 NBR_OF_THREAD = 2
 barrier = threading.Barrier(2)
 if __name__ == '__main__':
-    commThread = threading.Thread(target=comm_thread, args=(barrier,))
-    loggingThread = threading.Thread(target=logging_thread, args=(barrier,))
-    # commThread = threading.Thread(target=comm_thread, args=(barrier,), daemon=True)
-    # loggingThread = threading.Thread(target=logging_thread, args=(barrier,), daemon=True)
+    commThread = threading.Thread(target=comm_thread, args=(barrier,), daemon=True)
+    loggingThread = threading.Thread(target=logging_thread, args=(barrier,), daemon=True)
 
     commThread.start()
     loggingThread.start()
+
+    while(True):
+        time.sleep(1)
