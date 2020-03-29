@@ -2,6 +2,7 @@ import serial.tools.list_ports
 import time, threading, datetime
 import serial
 import re
+from interthread import *
 
 CONNECTED = False
 PORT_CHECKING_INTERVAL  = 0.1
@@ -62,5 +63,5 @@ def comm_thread(barrier):
     while(True):
         line = doRead(ser, '\n', TIMEOUT * 3)
         if(len(line)):
-            print(line)
+            DataQueue.put(line)
             #TODO: handle when hardware is disconnected
