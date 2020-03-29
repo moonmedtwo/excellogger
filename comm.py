@@ -37,15 +37,25 @@ def checkingPortThread():
 
         # print(datetime.datetime.now())
         next_call = next_call + PORT_CHECKING_INTERVAL
-        time.sleep(next_call - time.time())
+        
+        curTime = time.time()
+        if(next_call < curTime):
+            time.sleep(PORT_CHECKING_INTERVAL)
+        else:
+            time.sleep(next_call - curTime)
 
 def comm_thread(barrier):
     timerThread = threading.Thread(target=checkingPortThread)
     timerThread.start()
 
+    i = 1
     while(CONNECTED == False):
-        print('Connecting ...')
-        time.sleep(PORT_CHECKING_INTERVAL * 2)
+        print('Connecting ' + '.' * i)
+        if(i > 5):
+            i = 1
+        else:
+            i += 1
+        time.sleep(PORT_CHECKING_INTERVAL * 10)
     
     print('Connected')
 

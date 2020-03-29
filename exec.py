@@ -43,7 +43,9 @@ def logging_thread(barrier):
     outFPath = os.path.dirname(tf)
     os.chdir(outFPath)
 
+    print('Creating UserInfo .....')
     userinfo = UserInfo()
+    print('UserInfo is created')
     barrier.wait()
     while(True):
         data = DataQueue.get(block=True)        
