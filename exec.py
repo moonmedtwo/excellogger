@@ -8,6 +8,7 @@ import os
 from comm import comm_thread
 import time, threading, datetime
 from interthread import *
+from user import UserInfo
 
 def LogNewEntry(user, code, file):
     lock = TryLockAccess()
@@ -42,17 +43,20 @@ def logging_thread(barrier):
     outFPath = os.path.dirname(tf)
     os.chdir(outFPath)
 
+    userinfo = UserInfo()
     barrier.wait()
     while(True):
         data = DataQueue.get(block=True)        
         data = data.decode('utf8')
-        LogNewEntry('avu', data, tf)
+        LogNewEntry(userinfo.GetUserName(), data, tf)
 
 NBR_OF_THREAD = 2
 barrier = threading.Barrier(2)
 if __name__ == '__main__':
     commThread = threading.Thread(target=comm_thread, args=(barrier,))
     loggingThread = threading.Thread(target=logging_thread, args=(barrier,))
+    # commThread = threading.Thread(target=comm_thread, args=(barrier,), daemon=True)
+    # loggingThread = threading.Thread(target=logging_thread, args=(barrier,), daemon=True)
 
     commThread.start()
     loggingThread.start()
