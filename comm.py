@@ -2,7 +2,6 @@ import serial.tools.list_ports
 import time, threading, datetime
 import serial
 import re
-from interthread import *
 
 CONNECTED = False
 PORT_CHECKING_INTERVAL  = 0.1
@@ -45,6 +44,7 @@ def checkingPortThread():
             time.sleep(next_call - curTime)
 
 def comm_thread(barrier):
+    from interthread import InterthreadData, DataQueue
     timerThread = threading.Thread(target=checkingPortThread)
     timerThread.start()
 
@@ -73,5 +73,23 @@ def comm_thread(barrier):
     while(True):
         line = doRead(ser, '\n', TIMEOUT * 3)
         if(len(line)):
-            DataQueue.put(line)
+            data = InterthreadData(line, time.time())
+            DataQueue.put(data)
             #TODO: handle when hardware is disconnected
+
+def comm_thread_test(barrier):
+    from interthread import InterthreadData, DataQueue
+    print('Connected')
+    attempt = 0
+    n = 0
+    barrier.wait()
+    while(True):
+        line = f'FakeIWCode-{attempt}'
+        line = line.encode('utf-8')
+        data = InterthreadData(line, time.time())
+        DataQueue.put(data)
+        n += 1
+        if(n > 5):
+            n = 0
+            attempt += 1
+        time.sleep(1)
