@@ -1,8 +1,4 @@
-
 from excellogger import ExcelLogger
-import random, math
-import sys
-import os
 from comm import comm_thread, comm_thread_test
 import time, threading, datetime
 from user import UserInfo
@@ -19,9 +15,6 @@ def logging_thread(barrier):
     Lines = file.readlines() 
     tf = Lines[0]
     print(f"Logged data will be saved into {tf}")
-
-    outFPath = os.path.dirname(tf)
-    os.chdir(outFPath)
 
     logger = ExcelLogger(file=tf)
     print('Creating UserInfo .....')

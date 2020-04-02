@@ -1,28 +1,36 @@
 import os, time
-LOCKFILE = r'.mutex.locked'
 
-RETRY_INTERVAL = 0.1
 
-def TryLockAccess(timeout = 0):
-    try:
-        lock = open(LOCKFILE, 'x')
-        return lock
-    except IOError:
-        None
+class SimpleLock:
+    EXTENSION = r'.mutex.locked'
+    RETRY_INTERVAL = 0.1
 
-    start = time.time()
-    retries = 0
-    while (time.time() - start < timeout):
+    def __init__(self, filepath):
+        folder = os.path.dirname(filepath)
+        file = os.path.basename(filepath)
+        self.lockpath = fr'{folder}\{self.EXTENSION}{file}'
+        self.__lock = None
+
+    def TryLockAccess(self, timeout = 0):
         try:
-            lock = open(LOCKFILE, 'x')
-            return lock
+            self.__lock = open(self.lockpath, 'x')
+            return True
         except IOError:
-            retries += 1
-            print(f'File is locked, waiting and retry#{retries} in {RETRY_INTERVAL}')
-            time.sleep(RETRY_INTERVAL)
+            None
 
-    return None 
+        start = time.time()
+        retries = 0
+        while (time.time() - start < timeout):
+            try:
+                self.__lock = open(self.lockpath, 'x')
+                return True
+            except IOError:
+                retries += 1
+                print(f'File is locked, waiting and retry#{retries} in {self.RETRY_INTERVAL}')
+                time.sleep(self.RETRY_INTERVAL)
 
-def UnlockAccess(lock):
-    lock.close()
-    os.remove(LOCKFILE)
+        return  False
+
+    def UnlockAccess(self):
+        self.__lock.close()
+        os.remove(self.lockpath)

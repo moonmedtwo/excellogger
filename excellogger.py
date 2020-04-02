@@ -4,21 +4,21 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import random, math
 from datetime import datetime
-from lock import TryLockAccess, UnlockAccess, LOCKFILE
+from lock import SimpleLock
 
 class ExcelLogger:
     SHEET_NAME = "Log Datasheet"
 
     def __init__(self, file):
         self.__file = file
+        self.__simpleLock = SimpleLock(file)
 
     def ReadFile(self):
         df = pd.read_excel(self.__file, sheet_name = self.SHEET_NAME)
         return df
 
     def LogNewEntry(self, user, code):
-        lock = TryLockAccess()
-        if(lock != None):
+        if(self.__simpleLock.TryLockAccess() == True):
             try:
                 print(f'{code}, {user}')
                 datadict, isDuplicated, workbook = self.__ParseFileAndCheckDuplicated()
@@ -29,9 +29,9 @@ class ExcelLogger:
                 datalist = list(datadict.items())
                 self.__Log(workbook, code, user, datalist)
             finally:
-                UnlockAccess(lock)
+                self.__simpleLock.UnlockAccess()
         else:
-            print(f'Cannot create lock file. Please try to manually remove {LOCKFILE}')
+            print(f'Cannot create lock file. Please try to manually remove {self.__simpleLock.lockpath}')
 
 
     def __ParseFileAndCheckDuplicated(self):
