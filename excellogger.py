@@ -4,6 +4,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import random, math
 from datetime import datetime
+from lock import TryLockAccess, UnlockAccess, LOCKFILE
 
 class ExcelLogger:
     SHEET_NAME = "Log Datasheet"
@@ -15,7 +16,25 @@ class ExcelLogger:
         df = pd.read_excel(self.__file, sheet_name = self.SHEET_NAME)
         return df
 
-    def ParseFileAndCheckDuplicated(self):
+    def LogNewEntry(self, user, code):
+        lock = TryLockAccess()
+        if(lock != None):
+            try:
+                print(f'{code}, {user}')
+                datadict, isDuplicated, workbook = self.__ParseFileAndCheckDuplicated()
+    
+                if(isDuplicated): 
+                    raise('There is duplicate entry of IWCODE. Please remove the file or the entry')
+    
+                datalist = list(datadict.items())
+                self.__Log(workbook, code, user, datalist)
+            finally:
+                UnlockAccess(lock)
+        else:
+            print(f'Cannot create lock file. Please try to manually remove {LOCKFILE}')
+
+
+    def __ParseFileAndCheckDuplicated(self):
         try:
             workbook = load_workbook(filename=self.__file)
         except Exception as e:
@@ -45,7 +64,7 @@ class ExcelLogger:
 
         return datadict, isKeyDuplicated, workbook
 
-    def Log(self, wb, code, user, datalist):
+    def __Log(self, wb, code, user, datalist):
         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ws = self.__GetLogDataSheet(wb)
         FoundExisting = False

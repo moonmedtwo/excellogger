@@ -1,31 +1,11 @@
 
-import pandas as pd
 from excellogger import ExcelLogger
 import random, math
-from lock import TryLockAccess, UnlockAccess, LOCKFILE
 import sys
 import os
 from comm import comm_thread, comm_thread_test
 import time, threading, datetime
 from user import UserInfo
-
-def LogNewEntry(user, code, logger):
-    lock = TryLockAccess()
-    if(lock != None):
-        try:
-            print(f'{code}, {user}')
-            datadict, isDuplicated, workbook = logger.ParseFileAndCheckDuplicated()
-
-            if(isDuplicated): 
-                raise('There is duplicate entry of IWCODE. Please remove the file or the entry')
-
-            datalist = list(datadict.items())
-            logger.Log(workbook, code, user, datalist)
-        finally:
-            UnlockAccess(lock)
-    else:
-        print(f'Cannot create lock file. Please try to manually remove {LOCKFILE}')
-
 
 def logging_thread(barrier):
     from interthread import InterthreadData, DataQueue
@@ -51,7 +31,7 @@ def logging_thread(barrier):
     while(True):
         data = DataQueue.get(block=True)        
         line = data.bytesdata.decode('utf8')
-        LogNewEntry(userinfo.GetUserName(), line, logger)
+        logger.LogNewEntry(userinfo.GetUserName(), line)
         ptime = time.time() - data.time 
         with open('log.txt', 'a') as logfile:
             logstr = f'Processing Time: {ptime}\n'
